@@ -13,4 +13,20 @@ TODO: Finish this test by...
 4) Validate the response message "Order and pet status updated successfully"
 '''
 def test_patch_order_by_id():
-    pass
+    order_id = 1
+    test_endpoint = f"/store/order/{order_id}"
+
+    patch_payload = {
+        "status" : "delivered",
+        "pet_status": "available"
+    }
+
+    response = api_helpers.patch_api_data(test_endpoint, patch_payload)
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
+
+    response_data = response.json()
+
+    assert "Order and pet status updated successfully" in response_data.get("message",""), f"Expected success message, got: {response_data.get('message')}"
+
+    if hasattr(schemas, "order"):
+        validate(instance=response_data, schema=schemas.order)

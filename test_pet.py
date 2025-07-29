@@ -14,9 +14,10 @@ def test_pet_schema():
 
     response = api_helpers.get_api_data(test_endpoint)
 
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
 
     # Validate the response schema against the defined schema in schemas.py
+    response_data = response.json()
     validate(instance=response.json(), schema=schemas.pet)
 
 '''
@@ -36,11 +37,24 @@ def test_find_by_status_200(status):
     response = api_helpers.get_api_data(test_endpoint, params)
     # TODO...
 
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}:{response.text}"
+    response_data = response.json()
+
+    for pet in response_data:
+        assert pet.get("status") == status, f"Expected status {status}, got {pet.get('status')}"
+        validate(instance=pet, schema= schemas.pet)
+
 '''
 TODO: Finish this test by...
 1) Testing and validating the appropriate 404 response for /pets/{pet_id}
 2) Parameterizing the test for any edge cases
 '''
-def test_get_by_id_404():
+def test_get_by_id_404(invalid_pet_id):
     # TODO...
-    pass
+    test_endpoint = f"/pets/{invalid_pet_id}"
+
+    response = api_helpers.get_api_data(test_endpoint)
+
+    assert response.status_code == 404, f"Expected 404, got {response.status_code}: {response.text}"
+
+    assert_that(response.text.lower(), contains_string("not found"))
